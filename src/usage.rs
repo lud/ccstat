@@ -4,7 +4,6 @@ use std::{
     fs,
     io::Write,
     path::Path,
-    process::Command,
     time::SystemTime,
 };
 use crate::config::USAGE_TTL_SECS;
@@ -94,26 +93,30 @@ fn fetch_usage(creds_path: &Path, log: &Path) -> Option<String> {
         .map(str::to_string)?;
 
     log_msg(log, "Fetching usage from API...");
-    let out = Command::new("curl")
-        .args([
-            "-s", "-m", "5",
-            "-w", "\n__HTTP_CODE__%{http_code}",
-            "-H", &format!("Authorization: Bearer {}", token),
-            "-H", "anthropic-beta: oauth-2025-04-20",
-            "https://api.anthropic.com/api/oauth/usage",
-        ])
-        .output()
-        .map_err(|e| log_msg(log, &format!("curl exec failed: {}", e)))
-        .ok()?;
+    let agent = ureq::AgentBuilder::new()
+        .timeout(std::time::Duration::from_secs(5))
+        .build();
 
-    let body = String::from_utf8_lossy(&out.stdout).into_owned();
-    let (response, code) = body
-        .rsplit_once('\n')
-        .and_then(|(r, c)| c.strip_prefix("__HTTP_CODE__").map(|code| (r, code)))
-        .unwrap_or(("", ""));
-
-    log_msg(log, &format!("HTTP {}: {:.200}", code, response));
-    (code == "200").then(|| response.to_string())
+    match agent
+        .get("https://api.anthropic.com/api/oauth/usage")
+        .set("Authorization", &format!("Bearer {}", token))
+        .set("anthropic-beta", "oauth-2025-04-20")
+        .call()
+    {
+        Ok(resp) => {
+            log_msg(log, "HTTP 200");
+            resp.into_string().ok()
+        }
+        Err(ureq::Error::Status(code, resp)) => {
+            let body = resp.into_string().unwrap_or_default();
+            log_msg(log, &format!("HTTP {}: {:.200}", code, body));
+            None
+        }
+        Err(e) => {
+            log_msg(log, &format!("HTTP request failed: {}", e));
+            None
+        }
+    }
 }
 
 pub fn load_usage(cache_path: &Path, creds_path: &Path, log: &Path) -> Option<UsageInfo> {
