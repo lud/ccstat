@@ -46,7 +46,7 @@ fn parse_response(json: &str) -> Option<UsageInfo> {
     let resp: UsageResponse = serde_json::from_str(json).ok()?;
 
     let five_hour = resp.five_hour.and_then(|w| {
-        let usage_pct = w.utilization? * 100.0;
+        let usage_pct = w.utilization?;
         let t_pct = w.resets_at
             .map(|r| time_pct(r, Duration::hours(5)))
             .unwrap_or(0.0);
@@ -54,7 +54,7 @@ fn parse_response(json: &str) -> Option<UsageInfo> {
     });
 
     let seven_day = resp.seven_day.and_then(|w| {
-        let usage_pct = w.utilization? * 100.0;
+        let usage_pct = w.utilization?;
         let t_pct = w.resets_at
             .map(|r| time_pct(r, Duration::days(7)))
             .unwrap_or(0.0);

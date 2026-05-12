@@ -1,14 +1,14 @@
+mod bar;
 mod config;
 mod usage;
-mod bar;
 
 use chrono::{DateTime, Utc};
+use config::*;
 use std::{
     io::{self, Read},
     path::PathBuf,
     process::Command,
 };
-use config::*;
 use usage::{WindowInfo, load_usage, log_msg};
 
 struct Args {
@@ -30,14 +30,33 @@ fn parse_args() -> Args {
     let mut i = 1;
     while i < raw.len() {
         match raw[i].as_str() {
-            "--prefix" if i + 1 < raw.len() => { prefix = Some(raw[i + 1].clone()); i += 2; }
-            "--cache"  if i + 1 < raw.len() => { cache = expand_home(&raw[i + 1]); i += 2; }
-            "--log"    if i + 1 < raw.len() => { log   = expand_home(&raw[i + 1]); i += 2; }
-            "--creds"  if i + 1 < raw.len() => { creds = expand_home(&raw[i + 1]); i += 2; }
-            _ => { i += 1; }
+            "--prefix" if i + 1 < raw.len() => {
+                prefix = Some(raw[i + 1].clone());
+                i += 2;
+            }
+            "--cache" if i + 1 < raw.len() => {
+                cache = expand_home(&raw[i + 1]);
+                i += 2;
+            }
+            "--log" if i + 1 < raw.len() => {
+                log = expand_home(&raw[i + 1]);
+                i += 2;
+            }
+            "--creds" if i + 1 < raw.len() => {
+                creds = expand_home(&raw[i + 1]);
+                i += 2;
+            }
+            _ => {
+                i += 1;
+            }
         }
     }
-    Args { prefix, cache, log, creds }
+    Args {
+        prefix,
+        cache,
+        log,
+        creds,
+    }
 }
 
 fn expand_home(s: &str) -> PathBuf {
@@ -99,12 +118,14 @@ fn main() {
 
     let usage = load_usage(&args.cache, &args.creds, &args.log);
 
-    let five_h_display = usage.as_ref()
+    let five_h_display = usage
+        .as_ref()
         .and_then(|u| u.five_hour.as_ref())
         .map(|w| render_window("5h", w, fmt_five_h_reset))
         .unwrap_or_else(|| format!("5h {} --% --", bar::draw_bar(0.0, BAR_WIDTH)));
 
-    let seven_d_display = usage.as_ref()
+    let seven_d_display = usage
+        .as_ref()
         .and_then(|u| u.seven_day.as_ref())
         .map(|w| render_window("7d", w, fmt_seven_d_reset))
         .unwrap_or_else(|| format!("7d {} --% --", bar::draw_bar(0.0, BAR_WIDTH)));
@@ -123,15 +144,27 @@ fn main() {
         .or_else(|| input["workspace"]["current_dir"].as_str())
         .unwrap_or("");
     let cwd_short = shorten_cwd(cwd);
-    let branch = if cwd.is_empty() { String::new() } else { git_branch(cwd) };
+    let branch = if cwd.is_empty() {
+        String::new()
+    } else {
+        git_branch(cwd)
+    };
     let location = if branch.is_empty() {
         cwd_short
     } else {
         format!("{}  {}", cwd_short, branch)
     };
 
-    let prefix_part = args.prefix
-        .map(|p| format!("{}{}{} -- ", bar::ansi_256(PREFIX_COLOR), p, COLOR_RESET))
+    let prefix_part = args
+        .prefix
+        .map(|p| {
+            format!(
+                "{}({}){} -- ",
+                bar::ansi_color_256(PREFIX_COLOR),
+                p,
+                COLOR_RESET
+            )
+        })
         .unwrap_or_default();
 
     println!(
