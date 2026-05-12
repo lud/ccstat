@@ -99,9 +99,10 @@ fn fmt_seven_d_reset(dt: DateTime<Utc>) -> String {
 fn render_time_window(
     label: &str,
     info: &WindowInfo,
+    width: usize,
     fmt_reset: impl Fn(DateTime<Utc>) -> String,
 ) -> String {
-    let b = bar::draw_dual_bar(info.usage_pct, info.time_pct, BAR_WIDTH);
+    let b = bar::draw_dual_bar(info.usage_pct, info.time_pct, width);
     let pct = info.usage_pct.round() as u32;
     let reset = info.resets_at.map(fmt_reset).unwrap_or_else(|| "--".into());
     format!("{} {} {}% {}", label, b, pct, reset)
@@ -121,18 +122,18 @@ fn main() {
     let five_h_display = usage
         .as_ref()
         .and_then(|u| u.five_hour.as_ref())
-        .map(|w| render_time_window("5h", w, fmt_five_h_reset))
-        .unwrap_or_else(|| format!("5h {} --% --", bar::draw_bar(0.0, BAR_WIDTH)));
+        .map(|w| render_time_window("5h", w, LONG_BAR_WIDTH, fmt_five_h_reset))
+        .unwrap_or_else(|| format!("5h {} --% --", bar::draw_bar(0.0, LONG_BAR_WIDTH)));
 
     let seven_d_display = usage
         .as_ref()
         .and_then(|u| u.seven_day.as_ref())
-        .map(|w| render_time_window("7d", w, fmt_seven_d_reset))
-        .unwrap_or_else(|| format!("7d {} --% --", bar::draw_bar(0.0, BAR_WIDTH)));
+        .map(|w| render_time_window("7d", w, SHORT_BAR_WIDTH, fmt_seven_d_reset))
+        .unwrap_or_else(|| format!("7d {} --% --", bar::draw_bar(0.0, SHORT_BAR_WIDTH)));
 
     let ctx_raw = &input["context_window"]["used_percentage"];
     let ctx_pct = ctx_raw.as_f64().unwrap_or(0.0);
-    let ctx_bar = bar::draw_bar(ctx_pct, BAR_WIDTH);
+    let ctx_bar = bar::draw_bar(ctx_pct, SHORT_BAR_WIDTH);
     let ctx_display = if ctx_raw.is_null() {
         "n/a".to_owned()
     } else {

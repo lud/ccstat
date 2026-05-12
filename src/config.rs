@@ -1,7 +1,8 @@
 use chrono_tz::Tz;
 
 pub const USAGE_TTL_SECS: u64 = 900;
-pub const BAR_WIDTH: usize = 10;
+pub const LONG_BAR_WIDTH: usize = 20;
+pub const SHORT_BAR_WIDTH: usize = 10;
 pub const BLOCK: char = '█';
 
 /// ANSI 256-color: consumed usage (blue)
