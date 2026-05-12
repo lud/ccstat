@@ -7,7 +7,7 @@ pub const BLOCK: char = '█';
 /// ANSI 256-color: consumed usage (blue)
 pub const COLOR_USAGE: u8 = 33;
 /// ANSI 256-color: elapsed time (red)
-pub const COLOR_TIME: u8 = 196;
+pub const COLOR_TIME: u8 = 137;
 /// ANSI 256-color: both used and elapsed (purple)
 pub const COLOR_OVERLAP: u8 = 93;
 /// ANSI 256-color: neither used nor elapsed (grey)

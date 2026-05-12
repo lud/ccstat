@@ -96,7 +96,7 @@ fn fmt_seven_d_reset(dt: DateTime<Utc>) -> String {
     dt.with_timezone(&DISPLAY_TZ).format("%a %-Hh").to_string()
 }
 
-fn render_window(
+fn render_time_window(
     label: &str,
     info: &WindowInfo,
     fmt_reset: impl Fn(DateTime<Utc>) -> String,
@@ -121,13 +121,13 @@ fn main() {
     let five_h_display = usage
         .as_ref()
         .and_then(|u| u.five_hour.as_ref())
-        .map(|w| render_window("5h", w, fmt_five_h_reset))
+        .map(|w| render_time_window("5h", w, fmt_five_h_reset))
         .unwrap_or_else(|| format!("5h {} --% --", bar::draw_bar(0.0, BAR_WIDTH)));
 
     let seven_d_display = usage
         .as_ref()
         .and_then(|u| u.seven_day.as_ref())
-        .map(|w| render_window("7d", w, fmt_seven_d_reset))
+        .map(|w| render_time_window("7d", w, fmt_seven_d_reset))
         .unwrap_or_else(|| format!("7d {} --% --", bar::draw_bar(0.0, BAR_WIDTH)));
 
     let ctx_raw = &input["context_window"]["used_percentage"];
