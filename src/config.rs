@@ -16,8 +16,7 @@ pub const COLOR_EMPTY: u8 = 239;
 /// ANSI reset sequence
 pub const COLOR_RESET: &str = "\x1b[0m";
 
-pub const DEFAULT_CACHE_PATH: &str = "/tmp/claude-usage-cache.json";
-pub const DEFAULT_LOG_PATH: &str = "/tmp/ccstat.log";
+pub const DEFAULT_DIR: &str = "/tmp/claude-statusline";
 
 pub const DISPLAY_TZ: Tz = chrono_tz::Europe::Paris;
 pub const PREFIX_COLOR: u8 = 202;

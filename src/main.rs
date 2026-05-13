@@ -5,6 +5,7 @@ mod usage;
 use chrono::{DateTime, Utc};
 use config::*;
 use std::{
+    fs,
     io::{self, Read},
     path::PathBuf,
     process::Command,
@@ -13,8 +14,7 @@ use usage::{WindowInfo, load_usage, log_msg};
 
 struct Args {
     prefix: Option<String>,
-    cache: PathBuf,
-    log: PathBuf,
+    dir: PathBuf,
     creds: PathBuf,
 }
 
@@ -23,8 +23,7 @@ fn parse_args() -> Args {
     let home = std::env::var("HOME").unwrap_or_default();
 
     let mut prefix = None;
-    let mut cache = PathBuf::from(DEFAULT_CACHE_PATH);
-    let mut log = PathBuf::from(DEFAULT_LOG_PATH);
+    let mut dir = PathBuf::from(DEFAULT_DIR);
     let mut creds = PathBuf::from(format!("{}/.claude/.credentials.json", home));
 
     let mut i = 1;
@@ -34,12 +33,8 @@ fn parse_args() -> Args {
                 prefix = Some(raw[i + 1].clone());
                 i += 2;
             }
-            "--cache" if i + 1 < raw.len() => {
-                cache = expand_home(&raw[i + 1]);
-                i += 2;
-            }
-            "--log" if i + 1 < raw.len() => {
-                log = expand_home(&raw[i + 1]);
+            "--dir" if i + 1 < raw.len() => {
+                dir = expand_home(&raw[i + 1]);
                 i += 2;
             }
             "--creds" if i + 1 < raw.len() => {
@@ -51,12 +46,7 @@ fn parse_args() -> Args {
             }
         }
     }
-    Args {
-        prefix,
-        cache,
-        log,
-        creds,
-    }
+    Args { prefix, dir, creds }
 }
 
 fn expand_home(s: &str) -> PathBuf {
@@ -110,14 +100,18 @@ fn render_time_window(
 
 fn main() {
     let args = parse_args();
+    let _ = fs::create_dir_all(&args.dir);
+    let cache = args.dir.join("usage.cache");
+    let log = args.dir.join("log.txt");
 
     let mut stdin_buf = String::new();
     io::stdin().read_to_string(&mut stdin_buf).unwrap_or(0);
     let input: serde_json::Value = serde_json::from_str(&stdin_buf).unwrap_or_default();
 
-    log_msg(&args.log, "ccstat starting");
+    let _ = fs::write(args.dir.join("stdin.json"), &stdin_buf);
+    log_msg(&log, "ccstat starting");
 
-    let usage = load_usage(&args.cache, &args.creds, &args.log);
+    let usage = load_usage(&cache, &args.creds, &log);
 
     let five_h_display = usage
         .as_ref()
@@ -168,8 +162,13 @@ fn main() {
         })
         .unwrap_or_default();
 
+    let model_part = input["model"]["display_name"]
+        .as_str()
+        .map(|m| format!("{} | ", m))
+        .unwrap_or_default();
+
     println!(
-        "{}{} | {} | Ctx {} {} | {}",
-        prefix_part, five_h_display, seven_d_display, ctx_bar, ctx_display, location
+        "{}{}{} | {} | Ctx {} {} | {}",
+        prefix_part, model_part, five_h_display, seven_d_display, ctx_bar, ctx_display, location
     );
 }
