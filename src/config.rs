@@ -9,8 +9,8 @@ pub const BLOCK: char = '█';
 pub const COLOR_USAGE: u8 = 33;
 /// ANSI 256-color: elapsed time (red)
 pub const COLOR_TIME: u8 = 137;
-/// ANSI 256-color: both used and elapsed (purple)
-pub const COLOR_OVERLAP: u8 = 93;
+/// ANSI 256-color: usage running ahead of elapsed time (orange, warning)
+pub const COLOR_OVERFLOW: u8 = 202;
 /// ANSI 256-color: neither used nor elapsed (grey)
 pub const COLOR_EMPTY: u8 = 239;
 /// ANSI reset sequence

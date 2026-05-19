@@ -1,4 +1,4 @@
-use crate::config::{BLOCK, COLOR_EMPTY, COLOR_OVERLAP, COLOR_RESET, COLOR_TIME, COLOR_USAGE};
+use crate::config::{BLOCK, COLOR_EMPTY, COLOR_OVERFLOW, COLOR_RESET, COLOR_TIME, COLOR_USAGE};
 
 pub fn ansi_color_256(code: u8) -> String {
     format!("\x1b[38;5;{}m", code)
@@ -26,10 +26,10 @@ pub fn draw_bar(pct: f64, width: usize) -> String {
 /// `time_pct`  — how far through the time window we are (0–100).
 ///
 /// Four colors across `width` cells:
-///   COLOR_OVERLAP (purple) — cell is within BOTH the usage and time regions
-///   COLOR_USAGE   (blue)   — cell is in usage region only (usage ahead of time)
-///   COLOR_TIME    (red)    — cell is in time region only  (time ahead of usage)
-///   COLOR_EMPTY   (grey)   — cell is beyond both regions
+///   COLOR_USAGE    (blue)   — cell is within BOTH the usage and time regions (usage on track)
+///   COLOR_OVERFLOW (orange) — cell is in usage region only (usage ahead of time — warning)
+///   COLOR_TIME     (red)    — cell is in time region only  (time ahead of usage)
+///   COLOR_EMPTY    (grey)   — cell is beyond both regions
 ///
 /// Use `ansi_256(color)` per cell followed by `BLOCK`, then `COLOR_RESET` at the end.
 pub fn draw_dual_bar(usage_pct: f64, time_pct: f64, width: usize) -> String {
@@ -38,9 +38,9 @@ pub fn draw_dual_bar(usage_pct: f64, time_pct: f64, width: usize) -> String {
     let mut bar = String::new();
     for i in 0..width {
         if i < usage_filled && i < time_filled {
-            bar.push_str(&ansi_color_256(COLOR_OVERLAP));
-        } else if i < usage_filled {
             bar.push_str(&ansi_color_256(COLOR_USAGE));
+        } else if i < usage_filled {
+            bar.push_str(&ansi_color_256(COLOR_OVERFLOW));
         } else if i < time_filled {
             bar.push_str(&ansi_color_256(COLOR_TIME));
         } else {
