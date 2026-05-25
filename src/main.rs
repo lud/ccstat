@@ -10,21 +10,18 @@ use std::{
     path::PathBuf,
     process::Command,
 };
-use usage::{WindowInfo, load_usage, log_msg};
+use usage::{WindowInfo, log_msg, parse_rate_limits};
 
 struct Args {
     prefix: Option<String>,
     dir: PathBuf,
-    creds: PathBuf,
 }
 
 fn parse_args() -> Args {
     let raw: Vec<String> = std::env::args().collect();
-    let home = std::env::var("HOME").unwrap_or_default();
 
     let mut prefix = None;
     let mut dir = PathBuf::from(DEFAULT_DIR);
-    let mut creds = PathBuf::from(format!("{}/.claude/.credentials.json", home));
 
     let mut i = 1;
     while i < raw.len() {
@@ -37,16 +34,12 @@ fn parse_args() -> Args {
                 dir = expand_home(&raw[i + 1]);
                 i += 2;
             }
-            "--creds" if i + 1 < raw.len() => {
-                creds = expand_home(&raw[i + 1]);
-                i += 2;
-            }
             _ => {
                 i += 1;
             }
         }
     }
-    Args { prefix, dir, creds }
+    Args { prefix, dir }
 }
 
 fn expand_home(s: &str) -> PathBuf {
@@ -101,7 +94,6 @@ fn render_time_window(
 fn main() {
     let args = parse_args();
     let _ = fs::create_dir_all(&args.dir);
-    let cache = args.dir.join("usage.cache");
     let log = args.dir.join("log.txt");
 
     let mut stdin_buf = String::new();
@@ -111,17 +103,17 @@ fn main() {
     let _ = fs::write(args.dir.join("stdin.json"), &stdin_buf);
     log_msg(&log, "ccstat starting");
 
-    let usage = load_usage(&cache, &args.creds, &log);
+    let usage = parse_rate_limits(&input);
 
     let five_h_display = usage
+        .five_hour
         .as_ref()
-        .and_then(|u| u.five_hour.as_ref())
         .map(|w| render_time_window("5h", w, LONG_BAR_WIDTH, fmt_five_h_reset))
         .unwrap_or_else(|| format!("5h {} --% --", bar::draw_bar(0.0, LONG_BAR_WIDTH)));
 
     let seven_d_display = usage
+        .seven_day
         .as_ref()
-        .and_then(|u| u.seven_day.as_ref())
         .map(|w| render_time_window("7d", w, SHORT_BAR_WIDTH, fmt_seven_d_reset))
         .unwrap_or_else(|| format!("7d {} --% --", bar::draw_bar(0.0, SHORT_BAR_WIDTH)));
 
