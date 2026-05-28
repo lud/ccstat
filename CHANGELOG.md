@@ -2,10 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2026-05-28
+
+### Chores
+
+- Setup dependabot
+- Use cache for CI builds
+
+### Documentation
+
+- Installation instructions in README.md
+
+### Features
+
+- Tweak colors
+
 ## [0.2.2] - 2026-05-28
 
 ### Chores
 
+- Release v0.2.2
 - Create GH release before building assets
 
 ## [0.2.1] - 2026-05-28
