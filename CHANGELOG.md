@@ -2,10 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4] - 2026-05-28
+
+### Chores
+
+- Bump serde_json (#2)
+- Bump actions/checkout from 4 to 6 (#1)
+- Bump chrono-tz from 0.8.6 to 0.10.4 (#3)
+- CI setup
+
 ## [0.2.3] - 2026-05-28
 
 ### Chores
 
+- Release v0.2.3
 - Setup dependabot
 - Use cache for CI builds
 
