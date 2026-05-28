@@ -8,5 +8,20 @@ install: build
 release kind:
     cargo release {{kind}} --execute
 
-check:
-  cargo fmt
+format:
+  cargo fmt --all
+
+_cargo_clippy:
+  cargo clippy --all-targets -- -D warnings
+
+_check_build:
+  cargo build --release
+
+test:
+  cargo test
+
+_git_status:
+  git status
+
+check: format test _check_build _cargo_clippy _git_status
+
