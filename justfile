@@ -7,3 +7,6 @@ install: build
 # kind: major | minor | patch | <explicit version>
 release kind:
     cargo release {{kind}} --execute
+
+check:
+  cargo fmt

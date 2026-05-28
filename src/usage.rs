@@ -1,9 +1,5 @@
 use chrono::{DateTime, Duration, Local, Utc};
-use std::{
-    fs,
-    io::Write,
-    path::Path,
-};
+use std::{fs, io::Write, path::Path};
 
 #[derive(Debug, Clone)]
 pub struct WindowInfo {
