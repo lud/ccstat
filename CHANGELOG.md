@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-07-17
+
+### Features
+
+- Display effort level next to model
+
 ## [0.2.5] - 2026-05-29
+
+### Chores
+
+- Release v0.2.5
 
 ### Features
 
