@@ -156,7 +156,13 @@ fn main() {
 
     let model_part = input["model"]["display_name"]
         .as_str()
-        .map(|m| format!("{} | ", m))
+        .map(|m| {
+            let effort = input["effort"]["level"]
+                .as_str()
+                .map(|e| format!(" ({})", e))
+                .unwrap_or_default();
+            format!("{}{} | ", m, effort)
+        })
         .unwrap_or_default();
 
     println!(
