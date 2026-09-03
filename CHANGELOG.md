@@ -2,7 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2026-09-03
+
+### Chores
+
+- Bump serde_json in the cargo-minor-and-patch group (#6)
+- Bump chrono in the cargo-minor-and-patch group (#4)
+- Bump actions/checkout from 6 to 7 (#5)
+
 ## [0.3.0] - 2026-07-17
+
+### Chores
+
+- Release v0.3.0
 
 ### Features
 
