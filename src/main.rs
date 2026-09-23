@@ -91,6 +91,42 @@ fn render_time_window(
     format!("{} {} {}% {}", label, b, pct, reset)
 }
 
+fn fmt_tokens(n: u64) -> String {
+    if n < 1_000 {
+        n.to_string()
+    } else if n < 999_500 {
+        format!("{}k", (n as f64 / 1_000.0).round() as u64)
+    } else {
+        format!("{:.1}M", n as f64 / 1_000_000.0)
+    }
+}
+
+fn render_ctx_tokens(input: &serde_json::Value) -> Option<String> {
+    let usage = &input["context_window"]["current_usage"];
+    if !usage.is_object() {
+        return None;
+    }
+    let tokens: u64 = [
+        "input_tokens",
+        "cache_creation_input_tokens",
+        "cache_read_input_tokens",
+    ]
+    .iter()
+    .filter_map(|k| usage[k].as_u64())
+    .sum();
+    let text = fmt_tokens(tokens);
+    if input["exceeds_200k_tokens"].as_bool() == Some(true) {
+        Some(format!(
+            "{}{}{}",
+            bar::ansi_color_256(COLOR_OVERFLOW),
+            text,
+            COLOR_RESET
+        ))
+    } else {
+        Some(text)
+    }
+}
+
 fn main() {
     let args = parse_args();
     let _ = fs::create_dir_all(&args.dir);
@@ -124,6 +160,10 @@ fn main() {
         "n/a".to_owned()
     } else {
         format!("{}%", ctx_pct.round() as u32)
+    };
+    let ctx_display = match render_ctx_tokens(&input) {
+        Some(tokens) => format!("{} {}", ctx_display, tokens),
+        None => ctx_display,
     };
 
     let cwd = input["cwd"]
