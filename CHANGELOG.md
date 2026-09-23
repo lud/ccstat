@@ -2,10 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-09-23
+
+### Features
+
+- Display current session tokens
+
 ## [0.3.1] - 2026-09-03
 
 ### Chores
 
+- Release v0.3.1
 - Bump serde_json in the cargo-minor-and-patch group (#6)
 - Bump chrono in the cargo-minor-and-patch group (#4)
 - Bump actions/checkout from 6 to 7 (#5)
