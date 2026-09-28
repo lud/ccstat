@@ -1,8 +1,16 @@
+set windows-shell := ["powershell.exe", "-NoLogo", "-NoProfile", "-Command"]
+
 build:
     cargo build --release
 
+[unix]
 install: build
     cp target/release/ccstat ~/.local/bin/ccstat
+
+[windows]
+install: build
+    New-Item -ItemType Directory -Force "$env:USERPROFILE/.local/bin" | Out-Null
+    Copy-Item -Force target/release/ccstat.exe "$env:USERPROFILE/.local/bin/ccstat.exe"
 
 # kind: major | minor | patch | <explicit version>
 release kind:
