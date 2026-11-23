@@ -2,7 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.1] - 2026-11-23
+
+### Features
+
+- Smaller bars
+- Support windows
+
 ## [0.4.0] - 2026-09-23
+
+### Chores
+
+- Release v0.4.0
 
 ### Features
 
