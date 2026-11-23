@@ -1,7 +1,7 @@
 use chrono_tz::Tz;
 
-pub const LONG_BAR_WIDTH: usize = 20;
-pub const SHORT_BAR_WIDTH: usize = 10;
+pub const LONG_BAR_WIDTH: usize = 10;
+pub const SHORT_BAR_WIDTH: usize = 6;
 pub const BLOCK: char = '█';
 
 // Colors are ANSI palette indices (0-15) so the bar follows the terminal theme
